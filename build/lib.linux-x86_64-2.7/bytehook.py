@@ -1,5 +1,5 @@
 from __future__ import print_function
-import new 
+import new
 import dis
 import struct
 
@@ -154,36 +154,10 @@ def list_hookpoints():
             print('D', k, v)
 
 
-def remove_hookpoint(num):
-    if num not in origin:
-        raise Exception('Breakpoint not exist')
-    origin[num][0].func_code = origin[num][1]
-    del origin[num]
-    if num in hookpoints:
-        del hookpoints[num]
-    if num in disabledhookpoints:
-        del disabledhookpoints[num]
-
-
 def runpdb(_locals=None, _globals=None):
     import pdb
     pdb.set_trace()
 
-
-def hook_modifyRetval(func, retVal=None):
-    global hookpointcounter
-    hookpoints[hookpointcounter] = None
-    origin[hookpointcounter] = (func, func.func_code)
-    hookpointcounter += 1
-
-    code = func.func_code
-    newconsts, rvindex = getoraddtotuple(code.co_consts, retVal)
-    pdbtracecode = createbytecode('LOAD_CONST', rvindex, 'RETURN_VALUE')
-    newcode = insertbytecode(code.co_code, 0, pdbtracecode)
-    newlnotab = fixlines(code.co_lnotab, 0, len(pdbtracecode))
-    newfunc = new.code(code.co_argcount, code.co_nlocals, code.co_stacksize, code.co_flags, newcode, newconsts, code.co_names, code.co_varnames, code.co_filename, code.co_name, code.co_firstlineno, newlnotab, code.co_freevars, code.co_cellvars)
-    func.func_code = newfunc
-    return hookpointcounter - 1
 
 # TODO check that closures and nested functions work here as well
 def hook(func, lineno=None, insert_func=runpdb, with_state=False):
@@ -192,7 +166,6 @@ def hook(func, lineno=None, insert_func=runpdb, with_state=False):
     code = func.func_code
     newconsts, noneindex, minusoneindex, hookpointindex = getoraddtotuple(code.co_consts, None, -1, hookpointcounter)
     newnames, replaceindex, runhookpointindex = getoraddtotuple(code.co_names, __name__, 'run_hookpoint')
-    # runpdb()
     if with_state:
         newnames, localsindex, globalsindex = getoraddtotuple(newnames, 'locals', 'globals')
         pdbtracecode = createbytecode('LOAD_CONST', minusoneindex, 'LOAD_CONST', noneindex, 'IMPORT_NAME', replaceindex, 'LOAD_ATTR', runhookpointindex, 'LOAD_CONST', hookpointindex, 'LOAD_GLOBAL', localsindex, 'CALL_FUNCTION', 0, 'LOAD_GLOBAL', globalsindex, 'CALL_FUNCTION', 0, 'CALL_FUNCTION', 3, 'POP_TOP')
@@ -216,6 +189,6 @@ def hook(func, lineno=None, insert_func=runpdb, with_state=False):
         mapping[newfunc] = mapping[func.func_code]
     else:
         mapping[newfunc] = func.func_code
-    origin[hookpointcounter - 1] = (func, mapping[newfunc])
+    origin[hookpointcounter - 1] = mapping[newfunc]
     func.func_code = newfunc
     return hookpointcounter - 1

@@ -1,9 +1,9 @@
 import unittest
+import bytehook
 
 
 class TestBytehook(unittest.TestCase):
     def test_hook(self):
-        import bytehook
 
         def list_empty_function():
             alist = []
@@ -17,6 +17,13 @@ class TestBytehook(unittest.TestCase):
         bytehook.hook(list_empty_function, 2, inject_element, True)
         self.assertEqual(list_empty_function(), True)
 
+    def test_hook_modifyRetval(self):
+        def add(a, b):
+            return a + b
+
+        self.assertEqual(add(1,2), 3)
+        bytehook.hook_modifyRetval(add, 10)
+        self.assertEqual(add(1, 2), 10)
 
 if __name__ == '__main__':
     unittest.main()
