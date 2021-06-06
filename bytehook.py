@@ -189,6 +189,8 @@ def hook_modifyRetval(func, retVal=None):
 def hook(func, lineno=None, insert_func=runpdb, with_state=False):
     global hookpointcounter
     hookpoints[hookpointcounter] = insert_func
+    import pdb
+    pdb.set_trace()
     code = func.func_code
     newconsts, noneindex, minusoneindex, hookpointindex = getoraddtotuple(code.co_consts, None, -1, hookpointcounter)
     newnames, replaceindex, runhookpointindex = getoraddtotuple(code.co_names, __name__, 'run_hookpoint')
