@@ -1,3 +1,5 @@
+This is the version that supports python3.7.
+
 # What is bytehook?
 
 bytehook is a python module which allows you to modify existing pure python functions while python is already running. It inserts a hook into any line inside the bytecode of the function and allows you to define what the hook will run.
@@ -66,7 +68,7 @@ odd
 * bytehook can only modify pure python functions i.e. functions which are not written in C or using C-API.
 * bytehook modification affects only the next entry into the function, so if you have a loop function which never exits, if you inject a hook into it while it's running, it will not load the changes.
 * bytehook passes state to your hook function if you want, by calling locals() and globals(), if the arguments are passed by value like an integer, you could not modify it back in the original function upon returning.
-* bytehook currently supports CPython 2.7 for now.
+* bytehook currently supports CPython 3.7 for now.
 * bytehook is currently experimental, and has not been tested with all pure function types.
 
 # Performance impact
